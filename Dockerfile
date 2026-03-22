@@ -84,6 +84,10 @@ COPY src ./src
 # If we force a different port, deployments can come up but the domain will route elsewhere.
 EXPOSE 8080
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Ensure PID 1 reaps zombies and forwards signals.
-ENTRYPOINT ["tini", "--"]
-CMD ["node", "src/server.js"]
+# The entrypoint script runs as root to fix volume ownership, then drops to openclaw.
+ENTRYPOINT ["tini", "--", "/entrypoint.sh"]
+CMD []
