@@ -51,6 +51,18 @@ RUN apt-get update \
     python3-venv \
   && rm -rf /var/lib/apt/lists/*
 
+# Create the openclaw user and group.
+RUN useradd -m -s /bin/bash openclaw
+
+# Create required data directories with appropriate ownership and permissions.
+# /data/srf/       — owned by root, world-readable (openclaw has read-only access)
+# /data/workspace/ — owned by openclaw (full control)
+# /data/.openclaw/ — owned by openclaw (full control)
+RUN mkdir -p /data/srf /data/workspace /data/.openclaw \
+  && chmod 755 /data/srf \
+  && chown openclaw:openclaw /data/workspace && chmod 755 /data/workspace \
+  && chown openclaw:openclaw /data/.openclaw && chmod 755 /data/.openclaw
+
 # `openclaw update` expects pnpm. Provide it in the runtime image.
 RUN corepack enable && corepack prepare pnpm@10.23.0 --activate
 
@@ -83,6 +95,9 @@ COPY src ./src
 # Railway injects PORT at runtime and routes traffic to that port.
 # If we force a different port, deployments can come up but the domain will route elsewhere.
 EXPOSE 8080
+
+# Drop privileges — run as the openclaw user.
+USER openclaw
 
 # Ensure PID 1 reaps zombies and forwards signals.
 ENTRYPOINT ["tini", "--"]
