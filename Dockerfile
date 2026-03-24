@@ -12,8 +12,6 @@ RUN apt-get update \
     g++ \
   && rm -rf /var/lib/apt/lists/*
 
-# Create openclaw user
-RUN useradd -r -s /bin/false -m -d /home/openclaw openclaw
 
 # Install Bun (openclaw build uses it)
 RUN curl -fsSL https://bun.sh/install | bash
@@ -53,6 +51,9 @@ RUN apt-get update \
     python3 \
     python3-venv \
   && rm -rf /var/lib/apt/lists/*
+
+# Create openclaw user
+RUN useradd -r -s /bin/false -m -d /home/openclaw openclaw
 
 # `openclaw update` expects pnpm. Provide it in the runtime image.
 RUN corepack enable && corepack prepare pnpm@10.23.0 --activate
