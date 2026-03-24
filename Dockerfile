@@ -12,6 +12,9 @@ RUN apt-get update \
     g++ \
   && rm -rf /var/lib/apt/lists/*
 
+# Create openclaw user
+RUN useradd -r -s /bin/false -m -d /home/openclaw openclaw
+
 # Install Bun (openclaw build uses it)
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
